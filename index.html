@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iTabs Generator v9</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #00d4ff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --border: #475569;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-dark); color: var(--text-primary); min-height: 100vh; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 30px 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+        .logo { font-size: 2rem; font-weight: 700; color: var(--accent); }
+        .tagline { color: var(--text-secondary); font-size: 0.95rem; }
+        .version-badge { display: inline-block; background: var(--accent); color: var(--bg-dark); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-top: 10px; }
+        .steps { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        .step { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--text-secondary); }
+        .step.active { background: var(--accent); border-color: var(--accent); color: var(--bg-dark); }
+        .step.done { background: var(--success); border-color: var(--success); color: white; }
+        .panel { background: var(--bg-card); border-radius: 16px; padding: 25px; margin-bottom: 20px; display: none; }
+        .panel.active { display: block; }
+        .panel h2 { color: var(--accent); font-size: 1.3rem; margin-bottom: 20px; }
+        label { display: block; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px; }
+        input[type="text"], input[type="password"], input[type="email"], input[type="url"], textarea { width: 100%; padding: 12px 15px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 1rem; font-family: inherit; margin-bottom: 15px; }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        textarea { min-height: 200px; resize: vertical; }
+        .btn { padding: 12px 24px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--accent); color: var(--bg-dark); }
+        .btn-secondary { background: var(--bg-input); color: var(--text-primary); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .checkbox-row { display: flex; align-items: center; gap: 10px; margin: 15px 0; }
+        .checkbox-row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); }
+        .checkbox-row label { margin: 0; color: var(--text-primary); }
+        .help-text { font-size: 0.85rem; color: var(--text-secondary); margin-top: -10px; margin-bottom: 15px; }
+        .help-text a { color: var(--accent); }
+        .status { padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; }
+        .status.success { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: var(--success); }
+        .status.error { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--error); color: var(--error); }
+        .status.loading { background: rgba(0, 212, 255, 0.2); border: 1px solid var(--accent); color: var(--accent); }
+        .section-editor { background: var(--bg-input); border-radius: 12px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .section-editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .section-number { background: var(--accent); color: var(--bg-dark); width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .delete-section { background: transparent; border: none; color: var(--error); cursor: pointer; font-size: 1.2rem; }
+        .timestamp-badge { background: var(--bg-dark); color: var(--accent); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-family: monospace; }
+        .new-badge { background: var(--warning); color: var(--bg-dark); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+        .color-row { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .color-row input[type="color"] { width: 50px; height: 40px; border: none; border-radius: 8px; cursor: pointer; }
+        .color-row input[type="text"] { flex: 1; margin-bottom: 0; }
+        .preview-frame { width: 100%; height: 600px; border: none; border-radius: 12px; background: white; }
+        footer { text-align: center; padding: 30px; color: var(--text-secondary); font-size: 0.85rem; }
+        footer a { color: var(--accent); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">iTabs</div>
+            <div class="tagline">People learn easier and act</div>
+            <div class="version-badge">v9 - Video Clips</div>
+        </header>
+        
+        <div class="steps">
+            <div class="step active" id="step1">1</div>
+            <div class="step" id="step2">2</div>
+            <div class="step" id="step3">3</div>
+        </div>
+        
+        <div class="panel active" id="panel1">
+            <h2>🔑 Setup</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">One-time setup. Your key stays in your browser.</p>
+            <label>Gemini API Key</label>
+            <input type="password" id="apiKey" placeholder="Paste your Gemini API key">
+            <p class="help-text">Free from Google → <a href="https://aistudio.google.com/app/apikey" target="_blank">Get your key</a></p>
+            <div id="keyStatus"></div>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="saveApiKey()">Save & Continue →</button>
+            </div>
+        </div>
+        
+        <div class="panel" id="panel2">
+            <h2>📄 Your Content</h2>
+            <label>🎬 YouTube Video URL</label>
+            <input type="url" id="youtubeUrl" placeholder="https://youtube.com/watch?v=...">
+            <p class="help-text">Each section gets a "Watch Clip" button <span class="new-badge">New</span></p>
+            <div class="checkbox-row">
+                <input type="checkbox" id="embedVideo" checked>
+                <label for="embedVideo">Embed full video at top</label>
+            </div>
+            <div class="checkbox-row">
+                <input type="checkbox" id="enableClips" checked>
+                <label for="enableClips">Add popup video clips <span class="new-badge">New</span></label>
+            </div>
+            <label>📝 Transcript / Content</label>
+            <textarea id="transcript" placeholder="Paste transcript with timestamps like [00:01:23]..."></textarea>
+            <label>🎯 Who is this guide for?</label>
+            <input type="text" id="audience" placeholder="e.g. Tradies learning to use this tool">
+            <label>🎯 What should they DO after reading?</label>
+            <input type="text" id="goal" placeholder="e.g. Set up the saw correctly">
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="goToPanel(1)">← Back</button>
+                <button class="btn btn-primary" onclick="generateiTabs()">Create iTabs →</button>
+            </div>
+            <div id="generateStatus" style="margin-top: 20px;"></div>
+        </div>
+        
+        <div class="panel" id="panel3">
+            <h2>✏️ Edit & Download</h2>
+            <label>Guide Title</label>
+            <input type="text" id="guideTitle" placeholder="My iTabs Guide">
+            <label>Prepared For (optional)</label>
+            <input type="text" id="preparedFor" placeholder="Client name">
+            <div class="color-row">
+                <label style="margin: 0;">Brand Color</label>
+                <input type="color" id="brandColor" value="#00d4ff">
+                <input type="text" id="brandColorText" value="#00d4ff">
+            </div>
+            <div id="sectionsEditor"></div>
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="goToPanel(2)">← Back</button>
+                <button class="btn btn-secondary" onclick="previewGuide()">👁️ Preview</button>
+                <button class="btn btn-success" onclick="downloadGuide()">⬇️ Download</button>
+            </div>
+        </div>
+        
+        <div id="previewModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 1000; padding: 20px;">
+            <div style="max-width: 900px; margin: 0 auto; height: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="color: var(--accent);">Preview</h3>
+                    <button class="btn btn-secondary" onclick="closePreview()">✕ Close</button>
+                </div>
+                <iframe id="previewFrame" class="preview-frame"></iframe>
+            </div>
+        </div>
+        
+        <footer>Built by <a href="https://itabs.ai">iTabs</a> • People learn easier and act</footer>
+    </div>
+    
+    <script id="mainScript">
+        let generatedSections = [];
+        let videoId = '';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedKey = localStorage.getItem('gemini_api_key');
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+                document.getElementById('keyStatus').innerHTML = '<div class="status success">✓ API key loaded</div>';
+            }
+            document.getElementById('brandColor').addEventListener('input', function(e) {
+                document.getElementById('brandColorText').value = e.target.value;
+            });
+        });
+        
+        function saveApiKey() {
+            const key = document.getElementById('apiKey').value.trim();
+            if (!key) { document.getElementById('keyStatus').innerHTML = '<div class="status error">Please enter your API key</div>'; return; }
+            localStorage.setItem('gemini_api_key', key);
+            document.getElementById('keyStatus').innerHTML = '<div class="status success">✓ Saved</div>';
+            goToPanel(2);
+        }
+        
+        function goToPanel(num) {
+            document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+            document.getElementById('panel' + num).classList.add('active');
+            document.querySelectorAll('.step').forEach(function(s, i) {
+                s.classList.remove('active', 'done');
+                if (i + 1 < num) s.classList.add('done');
+                if (i + 1 === num) s.classList.add('active');
+            });
+        }
+        
+        function extractVideoId(url) {
+            if (!url) return '';
+            var match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\?\/]+)/);
+            return match ? match[1] : '';
+        }
+        
+        function parseTimestamp(ts) {
+            var cleaned = ts.replace(/[\[\]]/g, '').trim();
+            var parts = cleaned.split(':').map(Number);
+            if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            if (parts.length === 2) return parts[0] * 60 + parts[1];
+            return 0;
+        }
+        
+        async function generateiTabs() {
+            var apiKey = localStorage.getItem('gemini_api_key');
+            var transcript = document.getElementById('transcript').value.trim();
+            var youtubeUrl = document.getElementById('youtubeUrl').value.trim();
+            var audience = document.getElementById('audience').value.trim();
+            var goal = document.getElementById('goal').value.trim();
+            
+            if (!apiKey) { document.getElementById('generateStatus').innerHTML = '<div class="status error">Save API key first</div>'; return; }
+            if (!transcript) { document.getElementById('generateStatus').innerHTML = '<div class="status error">Paste content first</div>'; return; }
+            
+            videoId = extractVideoId(youtubeUrl);
+            document.getElementById('generateStatus').innerHTML = '<div class="status loading">⏳ Creating guide...</div>';
+            
+            var prompt = 'Convert this transcript into an iTabs guide with 4-6 sections.\n\n' +
+                (audience ? 'AUDIENCE: ' + audience + '\n' : '') +
+                (goal ? 'GOAL: ' + goal + '\n' : '') +
+                '\nTRANSCRIPT:\n' + transcript +
+                '\n\nFor each section: title, badge (Learn/Do/Setup/Check/Tips), startTime, endTime, simpleExplanation, keyPoints array, jonsNote.\n\nRespond JSON only: {"title":"","sections":[{"title":"","badge":"","startTime":"0:00","endTime":"1:30","simpleExplanation":"","keyPoints":[""],"jonsNote":""}]}';
+            
+            try {
+                var response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 4096 } })
+                });
+                var data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+                var text = data.candidates[0].content.parts[0].text;
+                var jsonMatch = text.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error('Could not parse');
+                var result = JSON.parse(jsonMatch[0]);
+                generatedSections = result.sections;
+                document.getElementById('guideTitle').value = result.title || 'iTabs Guide';
+                renderSectionsEditor();
+                document.getElementById('generateStatus').innerHTML = '<div class="status success">✓ Done!</div>';
+                goToPanel(3);
+            } catch (error) {
+                document.getElementById('generateStatus').innerHTML = '<div class="status error">Error: ' + error.message + '</div>';
+            }
+        }
+        
+        function renderSectionsEditor() {
+            var container = document.getElementById('sectionsEditor');
+            container.innerHTML = '<h3 style="margin: 20px 0 15px; color: #94a3b8;">Sections</h3>';
+            generatedSections.forEach(function(section, index) {
+                var div = document.createElement('div');
+                div.className = 'section-editor';
+                div.innerHTML = '<div class="section-editor-header"><div style="display:flex;align-items:center;gap:10px;"><span class="section-number">' + (index+1) + '</span><strong>' + section.title + '</strong></div><span class="timestamp-badge">' + section.startTime + ' - ' + section.endTime + '</span></div>' +
+                    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><div><label style="font-size:0.8rem">Start</label><input type="text" value="' + section.startTime + '" onchange="generatedSections[' + index + '].startTime=this.value" style="margin:0"></div><div><label style="font-size:0.8rem">End</label><input type="text" value="' + section.endTime + '" onchange="generatedSections[' + index + '].endTime=this.value" style="margin:0"></div></div>';
+                container.appendChild(div);
+            });
+        }
+        
+        function generateOutputHTML() {
+            var title = document.getElementById('guideTitle').value || 'iTabs Guide';
+            var preparedFor = document.getElementById('preparedFor').value;
+            var brandColor = document.getElementById('brandColor').value;
+            var embedVideo = document.getElementById('embedVideo').checked;
+            var enableClips = document.getElementById('enableClips').checked;
+            
+            var clips = generatedSections.map(function(s) {
+                return { title: s.title, videoId: videoId, start: parseTimestamp(s.startTime), end: parseTimestamp(s.endTime), timeLabel: s.startTime + ' - ' + s.endTime };
+            });
+            
+            var html = [];
+            html.push('<!DOCTYPE html>');
+            html.push('<html lang="en"><head>');
+            html.push('<meta charset="UTF-8">');
+            html.push('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+            html.push('<title>' + title + '</title>');
+            html.push('<style>');
+            html.push(':root{--brand:' + brandColor + ';--bg-dark:#0f172a;--bg-card:#1e293b;--bg-hover:#334155;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569}');
+            html.push('*{margin:0;padding:0;box-sizing:border-box}');
+            html.push('body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg-dark);color:var(--text-primary);min-height:100vh;padding:20px;line-height:1.6}');
+            html.push('.container{max-width:800px;margin:0 auto}');
+            html.push('header{text-align:center;padding:30px 20px;border-bottom:1px solid var(--border);margin-bottom:30px}');
+            html.push('h1{font-size:1.8rem;color:var(--brand);margin-bottom:10px}');
+            html.push('.subtitle{color:var(--text-secondary)}');
+            html.push('.prepared-for{display:inline-block;background:var(--bg-card);border:1px solid var(--brand);color:var(--brand);padding:6px 16px;border-radius:20px;font-size:0.85rem;margin-top:15px}');
+            html.push('.video-container{position:relative;width:100%;padding-bottom:56.25%;margin-bottom:30px;border-radius:12px;overflow:hidden}');
+            html.push('.video-container iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}');
+            html.push('.preload-container{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}');
+            html.push('.loading-status{background:var(--bg-card);padding:10px 15px;border-radius:8px;margin-bottom:20px;font-size:0.85rem;color:var(--text-secondary);text-align:center}');
+            html.push('.loading-status.ready{color:#4ade80}');
+            html.push('.itab-section{background:var(--bg-card);border-radius:12px;margin-bottom:16px;overflow:hidden;border:1px solid var(--border)}');
+            html.push('.itab-section:hover{border-color:var(--brand)}');
+            html.push('.itab-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;gap:10px}');
+            html.push('.itab-header:hover{background:var(--bg-hover)}');
+            html.push('.itab-title{display:flex;align-items:center;gap:12px;flex:1}');
+            html.push('.itab-number{width:32px;height:32px;background:var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--bg-dark);flex-shrink:0}');
+            html.push('.itab-name{font-size:1rem;font-weight:600}');
+            html.push('.itab-badge{font-size:0.7rem;padding:4px 10px;border-radius:20px;background:var(--bg-hover);color:var(--text-secondary);text-transform:uppercase}');
+            html.push('.itab-buttons{display:flex;gap:8px;align-items:center}');
+            html.push('.watch-btn{background:linear-gradient(135deg,#ff6b6b,#ee5a5a);color:white;border:none;padding:8px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:0.8rem}');
+            html.push('.i-button{width:32px;height:32px;background:var(--brand);border:none;border-radius:8px;color:var(--bg-dark);font-weight:700;cursor:pointer;font-family:serif;font-style:italic}');
+            html.push('.i-button.active{background:#10b981}');
+            html.push('.itab-content{display:none;padding:0 20px 20px;border-top:1px solid var(--border)}');
+            html.push('.itab-content.show{display:block}');
+            html.push('.tabs{display:flex;gap:8px;padding:15px 0;border-bottom:1px solid var(--border);margin-bottom:15px}');
+            html.push('.tab{padding:8px 16px;background:var(--bg-hover);border:none;border-radius:8px;color:var(--text-secondary);cursor:pointer;font-size:0.9rem}');
+            html.push('.tab.active{background:var(--brand);color:var(--bg-dark)}');
+            html.push('.tab-panel{display:none}');
+            html.push('.tab-panel.show{display:block}');
+            html.push('.tab-panel h3{color:var(--brand);font-size:1rem;margin-bottom:12px}');
+            html.push('.tab-panel p,.tab-panel li{color:var(--text-secondary);margin-bottom:10px}');
+            html.push('.tab-panel ul{padding-left:20px}');
+            html.push('.jons-note{background:rgba(255,217,61,0.1);border-left:3px solid #ffd93d;padding:12px 15px;border-radius:0 8px 8px 0;margin-top:15px}');
+            html.push('.jons-note strong{color:#ffd93d}');
+            html.push('.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:1000;justify-content:center;align-items:center;padding:20px}');
+            html.push('.modal-overlay.active{display:flex}');
+            html.push('.modal-content{background:var(--bg-card);border-radius:16px;width:100%;max-width:700px;max-height:90vh;overflow:hidden}');
+            html.push('.modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;border-bottom:1px solid var(--border)}');
+            html.push('.modal-title{color:var(--brand);font-size:1.1rem}');
+            html.push('.close-btn{background:var(--bg-hover);border:none;color:#fff;width:44px;height:44px;border-radius:50%;font-size:1.5rem;cursor:pointer}');
+            html.push('.modal-video{width:100%;aspect-ratio:16/9;background:#000;position:relative}');
+            html.push('.modal-video iframe{width:100%;height:100%;border:none}');
+            html.push('.modal-controls{padding:15px 20px;display:flex;gap:10px;justify-content:space-between;align-items:center}');
+            html.push('.replay-btn{background:var(--brand);color:var(--bg-dark);border:none;padding:14px 24px;border-radius:8px;font-weight:600;cursor:pointer}');
+            html.push('.modal-time{color:var(--text-secondary)}');
+            html.push('footer{text-align:center;padding:30px;color:var(--text-secondary);border-top:1px solid var(--border);margin-top:30px}');
+            html.push('footer a{color:var(--brand);text-decoration:none}');
+            html.push('</style></head><body>');
+            html.push('<div class="container">');
+            html.push('<header><h1>' + title + '</h1><p class="subtitle">Interactive guide - tap to learn</p>');
+            if (preparedFor) html.push('<div class="prepared-for">Prepared for: ' + preparedFor + '</div>');
+            html.push('</header>');
+            
+            if (embedVideo && videoId) {
+                html.push('<div class="video-container"><iframe src="https://www.youtube.com/embed/' + videoId + '?rel=0" allowfullscreen></iframe></div>');
+            }
+            
+            if (enableClips && videoId) {
+                html.push('<div class="loading-status" id="loadingStatus">⏳ Loading clips...</div>');
+                html.push('<div class="preload-container" id="preloadContainer"></div>');
+            }
+            
+            generatedSections.forEach(function(section, index) {
+                html.push('<div class="itab-section">');
+                html.push('<div class="itab-header" onclick="toggleSection(this)">');
+                html.push('<div class="itab-title">');
+                html.push('<span class="itab-number">' + (index+1) + '</span>');
+                html.push('<span class="itab-name">' + section.title + '</span>');
+                html.push('<span class="itab-badge">' + section.badge + '</span>');
+                html.push('</div>');
+                html.push('<div class="itab-buttons">');
+                if (enableClips && videoId) {
+                    html.push('<button class="watch-btn" onclick="event.stopPropagation();openClip(' + index + ')">▶️ Watch</button>');
+                }
+                html.push('<button class="i-button">i</button>');
+                html.push('</div></div>');
+                html.push('<div class="itab-content">');
+                html.push('<div class="tabs">');
+                html.push('<button class="tab active" onclick="showTab(this,\'simple-' + index + '\')">Simple</button>');
+                html.push('<button class="tab" onclick="showTab(this,\'points-' + index + '\')">Key Points</button>');
+                html.push('</div>');
+                html.push('<div class="tab-panel show" id="simple-' + index + '"><h3>Simple Explanation</h3><p>' + section.simpleExplanation + '</p></div>');
+                html.push('<div class="tab-panel" id="points-' + index + '"><h3>Key Points</h3><ul>');
+                section.keyPoints.forEach(function(pt) { html.push('<li>' + pt + '</li>'); });
+                html.push('</ul></div>');
+                html.push('<div class="jons-note"><strong>💡 Jon\'s Note:</strong> ' + section.jonsNote + '</div>');
+                html.push('</div></div>');
+            });
+            
+            html.push('<footer><p>Built with <a href="https://itabs.ai">iTabs</a></p></footer>');
+            html.push('</div>');
+            
+            // Modal
+            html.push('<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">');
+            html.push('<div class="modal-content" onclick="event.stopPropagation()">');
+            html.push('<div class="modal-header"><div class="modal-title" id="modalTitle">Section</div><button class="close-btn" onclick="closeModal()">✕</button></div>');
+            html.push('<div class="modal-video" id="modalVideo"></div>');
+            html.push('<div class="modal-controls"><button class="replay-btn" onclick="replayClip()">🔄 Replay</button><span class="modal-time" id="modalTime"></span></div>');
+            html.push('</div></div>');
+            
+            // Scripts - using split string to avoid parser issues
+            html.push('<' + 'script>');
+            html.push('function toggleSection(h){var c=h.nextElementSibling;var b=h.querySelector(".i-button");c.classList.toggle("show");b.classList.toggle("active")}');
+            html.push('function showTab(btn,id){var c=btn.closest(".itab-content");c.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active")});c.querySelectorAll(".tab-panel").forEach(function(p){p.classList.remove("show")});btn.classList.add("active");document.getElementById(id).classList.add("show")}');
+            
+            if (enableClips && videoId) {
+                html.push('var clips=' + JSON.stringify(clips) + ';');
+                html.push('var players=[],currentClipIndex=-1,activePlayer=null,apiReady=false;');
+                html.push('var tag=document.createElement("script");tag.src="https://www.youtube.com/iframe_api";document.head.appendChild(tag);');
+                html.push('function onYouTubeIframeAPIReady(){apiReady=true;preloadAllClips()}');
+                html.push('function preloadAllClips(){var c=document.getElementById("preloadContainer");if(!c)return;clips.forEach(function(clip,i){var d=document.createElement("div");d.id="preload-"+i;c.appendChild(d);players[i]=new YT.Player("preload-"+i,{height:"180",width:"320",videoId:clip.videoId,playerVars:{start:clip.start,end:clip.end,rel:0,modestbranding:1,playsinline:1,enablejsapi:1},events:{onReady:function(e){e.target.cueVideoById({videoId:clip.videoId,startSeconds:clip.start,endSeconds:clip.end});checkAllLoaded()}}})})}');
+                html.push('var loadedCount=0;function checkAllLoaded(){loadedCount++;var s=document.getElementById("loadingStatus");if(loadedCount>=clips.length&&s){s.innerHTML="✅ Clips ready";s.classList.add("ready")}}');
+                html.push('function openClip(i){if(!apiReady||!players[i]){alert("Loading...");return}currentClipIndex=i;var clip=clips[i];document.getElementById("modalTitle").textContent=clip.title;document.getElementById("modalTime").textContent=clip.timeLabel;var mv=document.getElementById("modalVideo");var pe=players[i].getIframe();pe.style.width="100%";pe.style.height="100%";pe.style.position="absolute";pe.style.left="0";pe.style.top="0";mv.appendChild(pe);document.getElementById("modalOverlay").classList.add("active");document.body.style.overflow="hidden";players[i].seekTo(clip.start,true);players[i].playVideo();activePlayer=players[i]}');
+                html.push('function replayClip(){if(currentClipIndex>=0&&players[currentClipIndex]){var clip=clips[currentClipIndex];players[currentClipIndex].seekTo(clip.start,true);players[currentClipIndex].playVideo()}}');
+                html.push('function closeModal(e){if(!e||e.target.id==="modalOverlay"){document.getElementById("modalOverlay").classList.remove("active");document.body.style.overflow="";if(activePlayer)activePlayer.pauseVideo();if(currentClipIndex>=0&&players[currentClipIndex]){var pd=document.getElementById("preload-"+currentClipIndex);var pe=players[currentClipIndex].getIframe();if(pd&&pe){pe.style.width="320px";pe.style.height="180px";pe.style.position="";pd.appendChild(pe)}}currentClipIndex=-1;activePlayer=null}}');
+                html.push('document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal({target:{id:"modalOverlay"}})});');
+            }
+            
+            html.push('document.addEventListener("DOMContentLoaded",function(){var f=document.querySelector(".itab-header");if(f)toggleSection(f)});');
+            html.push('<' + '/script>');
+            html.push('<' + '/body><' + '/html>');
+            
+            return html.join('\n');
+        }
+        
+        function previewGuide() {
+            var html = generateOutputHTML();
+            document.getElementById('previewFrame').srcdoc = html;
+            document.getElementById('previewModal').style.display = 'block';
+        }
+        
+        function closePreview() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+        
+        function downloadGuide() {
+            var html = generateOutputHTML();
+            var title = document.getElementById('guideTitle').value || 'itabs-guide';
+            var filename = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.html';
+            var blob = new Blob([html], { type: 'text/html' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
