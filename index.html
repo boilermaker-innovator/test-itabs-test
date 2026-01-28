@@ -301,12 +301,16 @@ function fetchUrl(url, isAutoMode) {
     fetchStatus.className = 'fetch-status';
     
     // Handle GitHub URLs - convert to raw if needed
-    var fetchUrl = url;
+    var targetUrl = url;
     if (url.includes('github.com') && !url.includes('raw.githubusercontent.com')) {
-        fetchUrl = url
+        targetUrl = url
             .replace('github.com', 'raw.githubusercontent.com')
             .replace('/blob/', '/');
     }
+    
+    // Use CORS proxy for cross-origin requests
+    var corsProxy = 'https://api.allorigins.win/raw?url=';
+    var fetchUrl = corsProxy + encodeURIComponent(targetUrl);
     
     fetch(fetchUrl)
         .then(function(response) {
